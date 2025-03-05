@@ -1,0 +1,18 @@
+{
+  "name": "interact",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "@helia/unixfs": "^4.0.2",
+    "helia": "^5.2.1",
+    "web3": "^4.16.0"
+  }
+}
