@@ -7,11 +7,12 @@ if (typeof CustomEvent === 'undefined') {
     };
 }
 
+import { IoTSensor } from './iotsensor.js';
 import fs from 'fs';
 import Web3 from 'web3';
 
-const GANACHE_URL = "http://127.0.0.1:7545";
-const CONTRACT_ADDRESS = "0x298b279ADD61B106906447F5d971798123eC8EdC";
+const GANACHE_URL = "http://127.0.0.1:8545";
+const CONTRACT_ADDRESS = "0x750a94db95102c04fb3cbd65c2e9daa12f592ad1";
 
 const web3 = new Web3(new Web3.providers.HttpProvider(GANACHE_URL));
 
@@ -20,14 +21,25 @@ const contractABI = JSON.parse(fs.readFileSync(contractPath, 'utf8')).abi;
 
 const contract = new web3.eth.Contract(contractABI, CONTRACT_ADDRESS);
 
+
+
 function obtainData() {
-    console.log("Obtaining Data....");
-    let data = "";
-    for (let i = 0; i < 1; i++) {
-        data += "Series Data " + (i + 1) + ": " + new Date().toISOString() + " Random " + Math.random() + "\n";
-    }
-    console.log(data);
-    return data;
+    return new Promise((resolve, reject) => {
+        const sensor = new IoTSensor("Temp-Humid Sensor", { lat: 67.1256, lon: 48.2364 });
+
+        // Start the sensor and wait until it's finished
+        sensor.start(1, 'iots.csv', 10);
+
+        // Wait for the expected duration + a small buffer (to ensure file writing completes)
+        setTimeout(() => {
+            try {
+                const data = fs.readFileSync('iots.csv', 'utf8');
+                resolve(data);
+            } catch (error) {
+                reject(error);
+            }
+        }, 11000); // 10 seconds for data collection + 1 second buffer
+    });
 }
 
 
@@ -48,7 +60,7 @@ async function mintNFT() {
 
         const fs = unixfs(helia)
         const encoder = new TextEncoder()
-        const cid = await fs.addBytes(encoder.encode(obtainData()), helia.blockstore)
+        const cid = await fs.addBytes(encoder.encode(await obtainData()), helia.blockstore)
         ipfsCID = `ipfs://${cid.toString()}`;
 
         console.log("Generated CID:", ipfsCID);
@@ -92,6 +104,9 @@ async function mintNFT() {
                 console.log("Token CID [", tokens, "]: ", tokenCID);
             }
         }
+
+        const ownerOfTheNFT = await contract.methods.retrieveOwnerOfCID(storedCID).call();
+        console.log("Owner of the NFT:", ownerOfTheNFT);
     } catch (error) {
         console.error("Error Minting NFT:", error);
     }
