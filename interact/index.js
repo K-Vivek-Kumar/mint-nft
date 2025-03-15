@@ -12,7 +12,7 @@ import fs from 'fs';
 import Web3 from 'web3';
 
 const GANACHE_URL = "http://127.0.0.1:8545";
-const CONTRACT_ADDRESS = "0x750a94db95102c04fb3cbd65c2e9daa12f592ad1";
+const CONTRACT_ADDRESS = "0xad19a8b0dcd97e60c15285482e7ffafde8ff4522";
 
 const web3 = new Web3(new Web3.providers.HttpProvider(GANACHE_URL));
 
@@ -107,6 +107,17 @@ async function mintNFT() {
 
         const ownerOfTheNFT = await contract.methods.retrieveOwnerOfCID(storedCID).call();
         console.log("Owner of the NFT:", ownerOfTheNFT);
+
+        console.log("Now lets transfer the NFT to another account");
+        const responseTransfer = await contract.methods.transferNFT(accounts[1], accounts[2], tokenId).send({
+            from: accounts[1],
+            gas: 300000
+        });
+        console.log("NFT Transfer Response:", responseTransfer);
+
+        console.log("Now lets check the owner of the NFT");
+        const newOwnerOfTheNFT = await contract.methods.retrieveOwnerOfCID(storedCID).call();
+        console.log("New Owner of the NFT:", newOwnerOfTheNFT);
     } catch (error) {
         console.error("Error Minting NFT:", error);
     }

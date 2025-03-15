@@ -63,4 +63,17 @@ contract NFTCollection is ERC721Enumerable, Ownable {
         }
         return address(0);
     }
+
+    function transferNFT(
+        address from,
+        address to,
+        uint _tokenId
+    ) public payable returns (bool) {
+        require(
+            _isApprovedOrOwner(from, _tokenId),
+            "ERC721: transfer caller is not owner nor approved"
+        );
+        safeTransferFrom(from, to, _tokenId);
+        return true;
+    }
 }
