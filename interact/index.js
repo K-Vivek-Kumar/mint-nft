@@ -12,7 +12,7 @@ import fs from 'fs';
 import Web3 from 'web3';
 
 const GANACHE_URL = "http://127.0.0.1:8545";
-const CONTRACT_ADDRESS = "0xad19a8b0dcd97e60c15285482e7ffafde8ff4522";
+const CONTRACT_ADDRESS = "0xe78A0F7E598Cc8b0Bb87894B0F60dD2a88d6a8Ab";
 
 const web3 = new Web3(new Web3.providers.HttpProvider(GANACHE_URL));
 
@@ -61,7 +61,7 @@ async function mintNFT() {
         const fs = unixfs(helia)
         const encoder = new TextEncoder()
         const cid = await fs.addBytes(encoder.encode(await obtainData()), helia.blockstore)
-        ipfsCID = `ipfs://${cid.toString()}`;
+        ipfsCID = `${cid.toString()}`;
 
         console.log("Generated CID:", ipfsCID);
 
@@ -72,7 +72,7 @@ async function mintNFT() {
             gas: 300000
         });
 
-        // console.log("NFT Minted Successfully:", response);
+        console.log("NFT Minted Successfully:", response);
         const tokenId = response.events.Transfer.returnValues.tokenId;
         console.log("Minted Token ID:", tokenId);
 
@@ -85,7 +85,7 @@ async function mintNFT() {
         const decoder = new TextDecoder()
         let text = ""
 
-        for await (const chunk of fs.cat(storedCID.toString().slice(7))) {
+        for await (const chunk of fs.cat(storedCID)) {
             text += decoder.decode(chunk, {
                 stream: true
             })

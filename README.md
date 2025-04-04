@@ -81,7 +81,17 @@ ganache
 
 By default, Ganache runs on **localhost:8545**.
 
-> **Note:** If port 8545 is occupied, update `truffle-config.js` in `nft-contract/` and `index.js` in `interact/` to match the new port.
+> Note: Ganache when ran using the above command creates an in-memory blockchain which is cleared once you close the ganache server. The contracts, blocks and transactions done in such cases are removed and can't be seen in a new ganache instance.
+
+For a reusable instance of the Ganache you need to run the following command:
+
+```bash
+ganache --db ./ganache-data --deterministic
+```
+
+Here `./ganache-data` is the directory relative to the parent directory where all the data about the ganache blocks, contracts and users are stored.
+
+> **Note:** If port 8545 is occupied, update `truffle-config.js` in `nft-contract/`, `connectGanache.js` and `index.js` in `interact/` to match the new port.
 
 ### **2. Deploy Smart Contract** (Second Terminal Session)
 
@@ -107,7 +117,7 @@ truffle migrate
 
 This deploys the contract, consuming some test ETH. Upon success, you will see the contract address.
 
-> **Important:** Copy the deployed **contract address** and update the `CONTRACT_ADDRESS` variable in `interact/index.js`.
+> **Important:** Copy the deployed **contract address** and update the `CONTRACT_ADDRESS` variable in `interact/index.js` and also in `interact/connectGanache.js`.
 
 ### **3. Run the Interaction Script** (Third Terminal Session)
 
@@ -119,7 +129,15 @@ Navigate to the `interact/` directory and run:
 node index.js
 ```
 
-This script:
+> Note: `index.js` is an implementation of singular helia node IPFS which doesn't store the files in the network. The more better implementation in form of persistent helia node is written in the `main.js` script. This `main.js` script is well written using various functions and also using alias names for the users in the ganache blockchain.
+
+You can run the `main.js` file using the following command in the `interact/` directory.
+
+```bash
+node main.js
+```
+
+These scripts:
 
 - Uploads the NFT metadata to IPFS.
 - Calls the smart contract to mint the NFT.
@@ -136,7 +154,40 @@ If you encounter issues:
   npm -v
   ```
 - **Ensure Ganache is running** before migrating contracts.
-- **Confirm correct contract address** is set in `index.js`.
+- **Confirm correct contract address** is set in `index.js` and `connectGanache.js`.
 - **Use `truffle migrate --reset`** if redeploying contracts.
 
 This completes the setup and execution process. If errors persist, verify your configurations and dependencies.
+
+## Implementing Alias Names Logic
+
+Implemented in the `interact/connectGanache.js` as the `getAccounts` function which returns the user hashes and corresponding alias names taken from the `interact/usernames.js` list of names. This is returned in form of map between hash and corresponding name.
+
+## Implementing Persistent Helia Node
+
+We can implement this persistent helia node using the `datastore-fs` and `blockstore-fs` libraries. `datastore-fs` library helps store the libp2p peer details of the helia node and `blockstore-fs` library helps store the files uploaded by the helia node.
+
+One can implement this in the following way using the `createHelia` API:
+
+```javascript
+import { createHelia } from "helia";
+import { FsDatastore } from "datastore-fs";
+import { FsBlockstore } from "blockstore-fs";
+
+const heliaNode = await createHelia({
+  datastore: new FsDatastore("/ipfs/random-node/datastore"),
+  blockstore: new FsDatastore("/ipfs/random-node/blockstore"),
+  libp2p: {
+    addresses: {
+      listen: [
+        "/ip4/127.0.0.1/tcp/4002",
+        "/ip4/127.0.0.1/udp/9002/webrtc-direct",
+      ],
+    },
+  },
+});
+```
+
+> Note: This solution is inspired by the following solution: [https://github.com/smakintel/ipfs-helia](https://github.com/smakintel/ipfs-helia), which was been discussed on the following thread: [IPFS Tech: Persistent Helia Node](https://discuss.ipfs.tech/t/i-used-helia-to-run-local-ipfs-node-using-electron-how-to-persist-nodeid/17766/9).
+
+A flexible implementation of this persistent Helia Node idea is done in the following file, `/interact/createNode.js`.

@@ -39,7 +39,7 @@ export class IoTSensor {
             if (err) {
                 console.error("Error appending data to file", err);
             } else {
-                console.log("Data appended to file");
+                // console.log("Data appended to file");
             }
         });
     }
@@ -57,7 +57,7 @@ export class IoTSensor {
                 return;
             }
             const sensorData = this.generateSensorData();
-            console.log(sensorData);
+            // console.log(sensorData);
             this.appendToFile(sensorData, filename);
             elapsedTime += intervalInSeconds;
         }, intervalInSeconds * 1000);
@@ -73,3 +73,19 @@ export class IoTSensor {
 
 // const sensor = new IoTSensor("Temp-Humid Sensor", { lat: 67.1256, lon: 48.2364 });
 // sensor.start(1, 'iots.csv', 10);
+
+export function obtainData() {
+    return new Promise((resolve, reject) => {
+        const sensor = new IoTSensor("Temp-Humid Sensor", { lat: 67.1256, lon: 48.2364 });
+        sensor.start(1, 'iots.csv', 10);
+
+        setTimeout(() => {
+            try {
+                const data = fs.readFileSync('iots.csv', 'utf8');
+                resolve(data);
+            } catch (error) {
+                reject(error);
+            }
+        }, 11000);
+    });
+}
