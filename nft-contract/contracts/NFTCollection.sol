@@ -53,12 +53,12 @@ contract NFTCollection is ERC721Enumerable, Ownable {
     function retrieveOwnerOfCID(
         string memory _cid
     ) public view returns (address) {
-        for (uint i = 0; i < totalSupply(); i++) {
+        uint256 supply = totalSupply();
+        for (uint256 tokenId = 0; tokenId < supply; tokenId++) {
             if (
-                keccak256(abi.encodePacked(tokenCIDs[i])) ==
-                keccak256(abi.encodePacked(_cid))
+                keccak256(bytes(tokenCIDs[tokenId])) == keccak256(bytes(_cid))
             ) {
-                return ownerOf(i);
+                return ownerOf(tokenId);
             }
         }
         return address(0);

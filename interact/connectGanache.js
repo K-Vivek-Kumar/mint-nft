@@ -3,7 +3,7 @@ import fs from 'fs';
 import { usernames } from './usernames.js';
 
 const GANACHE_URL = "http://127.0.0.1:8545";
-const CONTRACT_ADDRESS = "0xe78A0F7E598Cc8b0Bb87894B0F60dD2a88d6a8Ab";
+const CONTRACT_ADDRESS = "0xe982E462b094850F12AF94d21D470e21bE9D0E9C";
 const contractPath = 'D:/ethereum/nft-contract/build/NFTCollection.json';
 
 const connectGanache = () => {
