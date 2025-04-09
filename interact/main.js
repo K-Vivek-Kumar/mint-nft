@@ -15,7 +15,7 @@ import { mintNFT, retrieveOwnerOfCID, getAccounts, transferNFT } from "./connect
 const node1 = await startNode('node1', node1Addresses);
 console.log("Node 1 started with Peer ID: ", await getPeerId(node1));
 
-const cid = uploadFile(node1, await obtainData()).toString();
+const cid = await uploadFile(node1, await obtainData()).toString();
 console.log("File uploaded to Node 1. CID:", cid);
 
 const users = await getAccounts();
