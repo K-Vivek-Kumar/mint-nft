@@ -1,5 +1,5 @@
-var NFTCollection = artifacts.require("./NFTCollection.sol");
+var NFTRecord = artifacts.require("./NFTRecord.sol");
 
 module.exports = function (deployer) {
-  deployer.deploy(NFTCollection, "IoTNFT", "INFT");
+  deployer.deploy(NFTRecord);
 };
