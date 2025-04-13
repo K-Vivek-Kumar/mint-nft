@@ -3,10 +3,8 @@ pragma solidity ^0.8.13;
 
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
-import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 
 contract NFTRecord is ERC721 {
-    using SafeMath for uint256;
     using Counters for Counters.Counter;
 
     Counters.Counter private _tokenIds;
@@ -40,7 +38,7 @@ contract NFTRecord is ERC721 {
     // Mappings
     mapping(string => address) private ownerAlias;
     mapping(address => string) private reverseAlias;
-    mapping(string => Owner) private ownerDetails;
+    mapping(string => Owner) public ownerDetails;
     mapping(uint256 => NFTAsset) private nftDetails;
     mapping(uint256 => OwnershipRecords[]) public transferHistory;
 
@@ -55,28 +53,14 @@ contract NFTRecord is ERC721 {
 
     constructor() ERC721("NFTRecord", "KVK") {}
 
-    function authenticateName(
-        string memory username
-    ) private view returns (bool) {
-        return ownerDetails[username].ownerAddress == msg.sender;
-    }
-
-    function registerUsername(string memory username) public {
-        require(
-            ownerDetails[username].ownerAddress == address(0),
-            "Username already taken"
-        );
-
-        ownerDetails[username] = Owner(msg.sender, username);
-        ownerAlias[username] = msg.sender;
-        reverseAlias[msg.sender] = username;
-    }
-
     function mintNFT(
         string memory firstOwnerUserName,
         string memory ipfsCID
-    ) public returns (uint256) {
-        require(authenticateName(firstOwnerUserName), "Account is not yours!!");
+    ) public payable {
+        require(
+            ownerDetails[firstOwnerUserName].ownerAddress == msg.sender,
+            "Account is not yours!!"
+        );
 
         uint256 newTokenID = _tokenIds.current();
         _safeMint(msg.sender, newTokenID);
@@ -89,7 +73,6 @@ contract NFTRecord is ERC721 {
         });
 
         _tokenIds.increment();
-        return newTokenID;
     }
 
     function transferNFT(
@@ -100,7 +83,13 @@ contract NFTRecord is ERC721 {
         uint256 accessStart,
         uint256 accessEnd
     ) public {
+        require(_exists(tokenId), "Token does not exist");
+
         address from = ownerDetails[fromUsername].ownerAddress;
+        require(
+            msg.sender == from,
+            "You can't initiate transfer from another user"
+        );
         address to = ownerDetails[toUsername].ownerAddress;
 
         require(_isApprovedOrOwner(from, tokenId), "Not approved or owner");
@@ -145,10 +134,11 @@ contract NFTRecord is ERC721 {
         );
 
         string memory oldUsername = reverseAlias[msg.sender];
-        require(bytes(oldUsername).length != 0, "No existing username found");
 
-        delete ownerDetails[oldUsername];
-        delete ownerAlias[oldUsername];
+        if (bytes(oldUsername).length > 0) {
+            delete ownerDetails[oldUsername];
+            delete ownerAlias[oldUsername];
+        }
 
         ownerDetails[newUsername] = Owner(msg.sender, newUsername);
         ownerAlias[newUsername] = msg.sender;

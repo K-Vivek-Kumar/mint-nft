@@ -2,3 +2,4 @@
 .vscode/*
 /ganache-data
 */ethenv/
+.venv/
