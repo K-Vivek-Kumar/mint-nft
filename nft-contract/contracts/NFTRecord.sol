@@ -119,6 +119,17 @@ contract NFTRecord is ERC721 {
         );
     }
 
+    function getAllTokens() public view returns (NFTAsset[] memory) {
+        uint256 totalTokens = _tokenIds.current();
+        NFTAsset[] memory tokens = new NFTAsset[](totalTokens);
+
+        for (uint256 i = 0; i < totalTokens; i++) {
+            tokens[i] = nftDetails[i];
+        }
+
+        return tokens;
+    }
+
     function getCurrentOwner(
         uint256 tokenId
     ) public view returns (string memory) {
@@ -128,12 +139,16 @@ contract NFTRecord is ERC721 {
     }
 
     function updateUsername(string memory newUsername) public {
+        string memory oldUsername = reverseAlias[msg.sender];
+
+        if (keccak256(bytes(newUsername)) == keccak256(bytes(oldUsername))) {
+            return;
+        }
+
         require(
             ownerDetails[newUsername].ownerAddress == address(0),
             "Username already taken"
         );
-
-        string memory oldUsername = reverseAlias[msg.sender];
 
         if (bytes(oldUsername).length > 0) {
             delete ownerDetails[oldUsername];
