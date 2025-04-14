@@ -1,4 +1,5 @@
 from connect_ganache import (
+    get_all_past_owners,
     get_all_tokens,
     mint_nft,
     retrieve_owner_of_token,
@@ -35,14 +36,14 @@ def main():
     txn = transfer_nft(
         curr_owner,
         new_owner,
-        tokens[-1][1],
+        0,
         alias_names[curr_owner],
         0,
         datetime_to_timestamp("2025-04-15 12:00:00"),
         datetime_to_timestamp("2025-04-15 12:00:00"),
     )
 
-    if txn.status == 0:
+    if txn and txn.status and txn.status == 0:
         print("Transfer was unsuccessful")
         return
 
@@ -50,6 +51,10 @@ def main():
 
     owner = retrieve_owner_of_token(tokens[-1][1])
     print("New owner: ", owner)
+
+    past_owners = get_all_past_owners(0, alias_names[new_owner])
+    for past_owner in past_owners:
+        print(past_owner[0], ": [", past_owner[1], "]")
 
 
 if __name__ == "__main__":

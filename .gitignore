@@ -3,3 +3,4 @@
 /ganache-data
 */ethenv/
 .venv/
+*/build/

@@ -87,9 +87,6 @@ def get_all_tokens(account_hash):
         return None
 
 
-# TODO: Transfer work left
-
-
 def transfer_nft(
     from_username,
     to_username,
@@ -139,4 +136,20 @@ def get_token_cid(token_id):
         return cid
     except Exception as e:
         print(f"Exception in get_token_cid: {e}")
+        return None
+
+
+def get_all_past_owners(token_id, account_hash):
+    contract = connect_nft_contract()
+
+    try:
+        owners, permission_type = contract.functions.getAllPastOwners(
+            token_id
+        ).call({"from": account_hash})
+
+        past_owners = [(owners[i], permission_type[i]) for i in range(len(owners))]
+
+        return past_owners
+    except Exception as e:
+        print("Unable to get past owners: ", e)
         return None

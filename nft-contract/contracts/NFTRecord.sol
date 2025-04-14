@@ -119,6 +119,24 @@ contract NFTRecord is ERC721 {
         );
     }
 
+    function getAllPastOwners(
+        uint256 tokenId
+    ) public view returns (string[] memory, Permission[] memory) {
+        require(_exists(tokenId), "Token does not exist");
+
+        OwnershipRecords[] memory history = transferHistory[tokenId];
+
+        string[] memory aliases = new string[](history.length);
+        Permission[] memory permissions = new Permission[](history.length);
+
+        for (uint256 i = 0; i < history.length; i++) {
+            aliases[i] = history[i].currentOwner.username;
+            permissions[i] = history[i].transferType;
+        }
+
+        return (aliases, permissions);
+    }
+
     function getAllTokens() public view returns (NFTAsset[] memory) {
         uint256 totalTokens = _tokenIds.current();
         NFTAsset[] memory tokens = new NFTAsset[](totalTokens);
