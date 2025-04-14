@@ -90,12 +90,30 @@ def get_all_tokens(account_hash):
 # TODO: Transfer work left
 
 
-def transfer_nft(from_username, to_username, token_id):
+def transfer_nft(
+    from_username,
+    to_username,
+    token_id,
+    account_hash,
+    permission_type,
+    start_date_time,
+    end_date_time,
+):
     """Transfer NFT from one user to another"""
     contract = connect_nft_contract()
 
     try:
-        pass
+        txn = contract.functions.transferNFT(
+            from_username,
+            to_username,
+            token_id,
+            permission_type,
+            start_date_time,
+            end_date_time,
+        ).build_transaction({"from": account_hash})
+        txn_hash = web3.eth.send_transaction(txn)
+        receipt = web3.eth.wait_for_transaction_receipt(txn_hash)
+        return receipt
     except Exception as e:
         print(f"Exception in transfer_nft: {e}")
         return None
