@@ -63,7 +63,7 @@ Node v18.20.7
 Web3.js v1.10.0
 ```
 
-## Running the Project
+## Running the Project (v1-interact-ipfs-helia-javascript)
 
 You will need **three terminal sessions**:
 
@@ -142,6 +142,12 @@ These scripts:
 - Uploads the NFT metadata to IPFS.
 - Calls the smart contract to mint the NFT.
 - Verifies the stored NFT data.
+
+## Running the Project (v2-pyinteract-python)
+
+Similar to previous project we compile and migrate the smart contract onto the Ethereum but now this time we interact it using python web3 package.
+
+> TODO!!
 
 ## Troubleshooting
 
